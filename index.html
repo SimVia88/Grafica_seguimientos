@@ -18,7 +18,7 @@
             const referencia = parseFloat(params.get("referencia")) || 0;
 
             // Extraer valores de seguimiento con dos decimales
-            const seguimientoKeys = ["seguimiento1", "seguimiento2", "seguimientoAnual"];
+            const seguimientoKeys = ["seguimiento1", "seguimiento2"];
             const datos = seguimientoKeys.map(etapa => {
                 const valor = parseFloat(params.get(etapa));
                 return isNaN(valor) ? 0 : parseFloat(valor.toFixed(2)); // Si es NaN, asigna 0 y redondea a 2 decimales
@@ -32,7 +32,7 @@
         console.log("📊 Datos obtenidos de la URL:", params.datos);
         console.log("📌 Valor de referencia:", params.referencia);
 
-        const etiquetas = ["Seguimiento 1er Semestre", "Seguimiento 2do Semestre", "Seguimiento Anual"];
+        const etiquetas = ["Seguimiento 1er Semestre", "Seguimiento 2do Semestre"];
         const referenciaArray = new Array(3).fill(params.referencia); // Línea de referencia
 
         // Crear colores degradados dinámicos
@@ -59,8 +59,8 @@
                     {
                         label: "Valores de Seguimiento (Verde = Mayor, Rojo = Menor)",
                         data: params.datos,
-                        backgroundColor: barColors,
-                        borderColor: "#ccc",
+                        backgroundColor: "#66ffa6",
+                        borderColor: "#d50000",
                         borderWidth: 1,
                         barThickness: 50
                     },
