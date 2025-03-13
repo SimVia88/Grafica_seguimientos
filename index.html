@@ -12,13 +12,13 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: transparent; /* Fondo transparente para el iframe */
-            overflow: hidden; /* Evita barras de desplazamiento */
+            background-color: transparent;
+            overflow: hidden;
         }
 
         canvas {
-            width: 90vw; /* Ajuste dinámico */
-            height: 80vh; /* Ajuste dinámico */
+            width: 90vw;
+            height: 80vh;
         }
     </style>
 </head>
@@ -31,9 +31,11 @@
             const params = new URLSearchParams(window.location.search);
             return {
                 referencia: parseFloat(params.get("referencia")) || 0,
+                criterio: params.get("criterio") || "AUM",
                 datos: [
                     parseFloat(params.get("seguimiento1")) || 0,
                     parseFloat(params.get("seguimiento2")) || 0,
+                    parseFloat(params.get("seguimientoAnual")) || 0
                 ]
             };
         }
@@ -42,16 +44,29 @@
         const params = getQueryParams();
         console.log("📊 Datos obtenidos de la URL:", params.datos);
         console.log("📌 Valor de referencia:", params.referencia);
+        console.log("📌 Criterio:", params.criterio);
 
-        const etiquetas = ["Seguimiento 1er Semestre", "Seguimiento 2do Semestre"];
-        const referenciaArray = new Array(etiquetas.length).fill(params.referencia); // Línea de referencia
+        const etiquetas = ["Seguimiento 1er Semestre", "Seguimiento 2do Semestre", "Seguimiento Anual"];
+        const referenciaArray = etiquetas.map(() => params.referencia);
 
         const ctx = document.getElementById("myChart").getContext("2d");
 
-        // Generar colores para cada barra
-        const barColors = params.datos.map(valor =>
-            valor >= params.referencia ? "#00c853" : "#d50000"
-        );
+        // Función para crear un degradado dinámico en las barras
+        function createGradient(ctx, arriba, abajo) {
+            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, arriba);
+            gradient.addColorStop(1, abajo);
+            return gradient;
+        }
+
+        // Asignar colores basados en el criterio
+        const barColors = params.datos.map(valor => {
+            if (params.criterio === "AUM") {
+                return valor >= params.referencia ? createGradient(ctx, "#00c853", "#66ffa6") : createGradient(ctx, "#d50000", "#ff8a80");
+            } else {
+                return valor >= params.referencia ? createGradient(ctx, "#d50000", "#ff8a80") : createGradient(ctx, "#00c853", "#66ffa6");
+            }
+        });
 
         // Crear la gráfica
         new Chart(ctx, {
@@ -60,7 +75,7 @@
                 labels: etiquetas,
                 datasets: [
                     {
-                        label: "Valores de Seguimiento (Verde = Mayor, Rojo = Menor)",
+                        label: "Valores de Seguimiento",
                         data: params.datos,
                         backgroundColor: barColors,
                         borderColor: "#ccc",
