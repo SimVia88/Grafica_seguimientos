@@ -34,7 +34,6 @@
                 datos: [
                     parseFloat(params.get("seguimiento1")) || 0,
                     parseFloat(params.get("seguimiento2")) || 0,
-                    parseFloat(params.get("seguimientoAnual")) || 0
                 ]
             };
         }
@@ -44,7 +43,7 @@
         console.log("📊 Datos obtenidos de la URL:", params.datos);
         console.log("📌 Valor de referencia:", params.referencia);
 
-        const etiquetas = ["Seguimiento 1er Semestre", "Seguimiento 2do Semestre", "Seguimiento Anual"];
+        const etiquetas = ["Seguimiento 1er Semestre", "Seguimiento 2do Semestre"];
         const referenciaArray = new Array(etiquetas.length).fill(params.referencia); // Línea de referencia
 
         const ctx = document.getElementById("myChart").getContext("2d");
