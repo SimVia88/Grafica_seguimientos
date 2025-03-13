@@ -35,7 +35,6 @@
                 datos: [
                     parseFloat(params.get("seguimiento1")) || 0,
                     parseFloat(params.get("seguimiento2")) || 0,
-                    parseFloat(params.get("seguimientoAnual")) || 0
                 ]
             };
         }
@@ -46,7 +45,7 @@
         console.log("📌 Valor de referencia:", params.referencia);
         console.log("📌 Criterio:", params.criterio);
 
-        const etiquetas = ["Seguimiento 1er Semestre", "Seguimiento 2do Semestre", "Seguimiento Anual"];
+        const etiquetas = ["Seguimiento 1er Semestre", "Seguimiento 2do Semestre"];
         const referenciaArray = etiquetas.map(() => params.referencia);
 
         const ctx = document.getElementById("myChart").getContext("2d");
