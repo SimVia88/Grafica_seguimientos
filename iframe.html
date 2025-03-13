@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gráfica en iFrame</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #E1E8ED;
+            margin: 0;
+        }
+
+        .iframe-container {
+            width: 100%;
+            max-width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        iframe {
+            width: 90vw;
+            height: 80vh;
+            border: none;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="iframe-container">
+        <iframe id="grafica-frame"></iframe>
+    </div>
+
+    <script>
+        // Obtener valores desde la URL de Adalo
+        const params = new URLSearchParams(window.location.search);
+        const referencia = params.get("referencia") || 0;
+        const seguimiento1 = params.get("seguimiento1") || 0;
+        const seguimiento2 = params.get("seguimiento2") || 0;
+        const seguimientoAnual = params.get("seguimientoAnual") || 0;
+
+        // Construir la URL del iframe con los valores dinámicos
+        const iframeSrc = `index.html?referencia=${referencia}&seguimiento1=${seguimiento1}&seguimiento2=${seguimiento2}&seguimientoAnual=${seguimientoAnual}`;
+
+        // Insertar la URL en el iframe
+        document.getElementById("grafica-frame").src = iframeSrc;
+
+        // Ajustar tamaño del iframe dinámicamente
+        function resizeIframe() {
+            const iframe = document.getElementById("grafica-frame");
+            iframe.style.height = window.innerHeight + "px"; // Ajusta la altura al 100% de la ventana
+        }
+
+        // Escuchar eventos de cambio de tamaño de pantalla
+        window.addEventListener("resize", resizeIframe);
+        resizeIframe(); // Ajustar en la carga inicial
+    </script>
+
+</body>
+</html>
