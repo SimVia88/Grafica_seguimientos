@@ -3,13 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gráfica de Seguimiento 3D</title>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <title>Gráfica de Seguimiento</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: transparent;
+            overflow: hidden;
+        }
+
+        canvas {
+            width: 90vw;
+            height: 80vh;
+        }
+    </style>
 </head>
-<body style="display: flex; justify-content: center; align-items: center; height: 100vh; background: #E1E8ED; margin: 0;">
-    <div id="grafica3d" style="width: 90vw; height: 80vh;"></div>
+<body>
+    <canvas id="myChart"></canvas>
 
     <script>
+        // Función para obtener los valores desde la URL
         function getQueryParams() {
             const params = new URLSearchParams(window.location.search);
             return {
@@ -18,54 +35,89 @@
                 datos: [
                     parseFloat(params.get("seguimiento1")) || 0,
                     parseFloat(params.get("seguimiento2")) || 0,
-                    parseFloat(params.get("seguimientoAnual")) || 0
                 ]
             };
         }
 
+        // Obtener los valores desde la URL
         const params = getQueryParams();
-        const etiquetas = ["1er Semestre", "2do Semestre", "Anual"];
+        console.log("📊 Datos obtenidos de la URL:", params.datos);
+        console.log("📌 Valor de referencia:", params.referencia);
+        console.log("📌 Criterio:", params.criterio);
+
+        const etiquetas = ["Seguimiento 1er Semestre", "Seguimiento 2do Semestre"];
         const referenciaArray = etiquetas.map(() => params.referencia);
 
-        const colores = params.datos.map(valor => {
+        const ctx = document.getElementById("myChart").getContext("2d");
+
+        // Función para crear un degradado dinámico en las barras
+        function createGradient(ctx, arriba, abajo) {
+            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, arriba);
+            gradient.addColorStop(1, abajo);
+            return gradient;
+        }
+
+        // Asignar colores basados en el criterio
+        const barColors = params.datos.map(valor => {
             if (params.criterio === "AUM") {
-                return valor >= params.referencia ? "#85CD7B" : "#F19595";
+                return valor >= params.referencia ? createGradient(ctx, "#00c853", "#66ffa6") : createGradient(ctx, "#d50000", "#ff8a80");
             } else {
-                return valor >= params.referencia ? "#F19595" : "#85CD7B";
+                return valor >= params.referencia ? createGradient(ctx, "#d50000", "#ff8a80") : createGradient(ctx, "#00c853", "#66ffa6");
             }
         });
 
-        const trace1 = {
-            x: etiquetas,
-            y: params.datos,
-            z: [1, 1, 1],  // Profundidad en el eje Z
+        // Crear la gráfica
+        new Chart(ctx, {
             type: "bar",
-            marker: { color: colores },
-            name: "Valores de Seguimiento"
-        };
-
-        const trace2 = {
-            x: etiquetas,
-            y: referenciaArray,
-            z: [1, 1, 1],
-            type: "scatter3d",
-            mode: "lines",
-            line: { color: "blue", width: 5 },
-            name: "Valor de Referencia"
-        };
-
-        const layout = {
-            title: "Gráfica de Seguimiento en 3D",
-            scene: {
-                xaxis: { title: "Periodo" },
-                yaxis: { title: "Valor" },
-                zaxis: { title: "" }
+            data: {
+                labels: etiquetas,
+                datasets: [
+                    {
+                        label: "Valores de Seguimiento",
+                        data: params.datos,
+                        backgroundColor: barColors,
+                        borderColor: "#ccc",
+                        borderWidth: 1
+                    },
+                    {
+                        label: "Valor de Referencia",
+                        data: referenciaArray,
+                        type: "line",
+                        borderColor: "blue",
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            font: {
+                                size: 14
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                return `${context.dataset.label}: ${context.raw.toFixed(2)}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        suggestedMin: Math.min(...params.datos, params.referencia) * 0.8
+                    }
+                }
             }
-        };
-
-        Plotly.newPlot("grafica3d", [trace1, trace2], layout);
+        });
     </script>
-
 </body>
 </html>
-
