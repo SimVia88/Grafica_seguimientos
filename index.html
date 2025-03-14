@@ -3,27 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gráfica de Seguimiento 2D con Volumen</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #E1E8ED;
-            overflow: hidden;
-        }
-
-        canvas {
-            width: 90vw;
-            height: 80vh;
-        }
-    </style>
+    <title>Gráfica de Seguimiento 3D</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
-<body>
-    <canvas id="myChart"></canvas>
+<body style="display: flex; justify-content: center; align-items: center; height: 100vh; background: #E1E8ED; margin: 0;">
+    <div id="grafica3d" style="width: 90vw; height: 80vh;"></div>
 
     <script>
         function getQueryParams() {
@@ -34,68 +18,54 @@
                 datos: [
                     parseFloat(params.get("seguimiento1")) || 0,
                     parseFloat(params.get("seguimiento2")) || 0,
+                    parseFloat(params.get("seguimientoAnual")) || 0
                 ]
             };
         }
 
         const params = getQueryParams();
-        const etiquetas = ["1er Semestre", "2do Semestre"];
+        const etiquetas = ["1er Semestre", "2do Semestre", "Anual"];
         const referenciaArray = etiquetas.map(() => params.referencia);
 
-        const ctx = document.getElementById("myChart").getContext("2d");
-
-        // Función para crear un degradado simulando volumen en las barras
-        function createGradient(ctx, colorBase) {
-            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-            gradient.addColorStop(0, "#FFFFFF"); // Brillo en la parte superior
-            gradient.addColorStop(0.2, colorBase); // Color base
-            gradient.addColorStop(1, "#666666"); // Sombra en la parte inferior
-            return gradient;
-        }
-
-        // Determinar colores según criterio
-        const barColors = params.datos.map(valor => {
+        const colores = params.datos.map(valor => {
             if (params.criterio === "AUM") {
-                return createGradient(ctx, valor >= params.referencia ? "#85CD7B" : "#F19595");
+                return valor >= params.referencia ? "#85CD7B" : "#F19595";
             } else {
-                return createGradient(ctx, valor >= params.referencia ? "#F19595" : "#85CD7B");
+                return valor >= params.referencia ? "#F19595" : "#85CD7B";
             }
         });
 
-        new Chart(ctx, {
+        const trace1 = {
+            x: etiquetas,
+            y: params.datos,
+            z: [1, 1, 1],  // Profundidad en el eje Z
             type: "bar",
-            data: {
-                labels: etiquetas,
-                datasets: [
-                    {
-                        label: "Valores de Seguimiento",
-                        data: params.datos,
-                        backgroundColor: barColors,
-                        borderColor: "#444", // Borde oscuro para dar efecto 3D
-                        borderWidth: 2
-                    },
-                    {
-                        label: "Valor de Referencia",
-                        data: referenciaArray,
-                        type: "line",
-                        borderColor: "blue",
-                        borderWidth: 2,
-                        pointRadius: 0,
-                        fill: false
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: false,
-                        suggestedMin: Math.min(...params.datos, params.referencia) * 0.8
-                    }
-                }
+            marker: { color: colores },
+            name: "Valores de Seguimiento"
+        };
+
+        const trace2 = {
+            x: etiquetas,
+            y: referenciaArray,
+            z: [1, 1, 1],
+            type: "scatter3d",
+            mode: "lines",
+            line: { color: "blue", width: 5 },
+            name: "Valor de Referencia"
+        };
+
+        const layout = {
+            title: "Gráfica de Seguimiento en 3D",
+            scene: {
+                xaxis: { title: "Periodo" },
+                yaxis: { title: "Valor" },
+                zaxis: { title: "" }
             }
-        });
+        };
+
+        Plotly.newPlot("grafica3d", [trace1, trace2], layout);
     </script>
+
 </body>
 </html>
+
