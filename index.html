@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gráfica de Seguimiento</title>
+    <title>Gráfica de Seguimiento 2D con Volumen</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
@@ -12,7 +12,7 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: transparent;
+            background-color: #E1E8ED;
             overflow: hidden;
         }
 
@@ -26,7 +26,6 @@
     <canvas id="myChart"></canvas>
 
     <script>
-        // Función para obtener los valores desde la URL
         function getQueryParams() {
             const params = new URLSearchParams(window.location.search);
             return {
@@ -39,35 +38,30 @@
             };
         }
 
-        // Obtener los valores desde la URL
         const params = getQueryParams();
-        console.log("📊 Datos obtenidos de la URL:", params.datos);
-        console.log("📌 Valor de referencia:", params.referencia);
-        console.log("📌 Criterio:", params.criterio);
-
-        const etiquetas = ["Seguimiento 1er Semestre", "Seguimiento 2do Semestre"];
+        const etiquetas = ["1er Semestre", "2do Semestre"];
         const referenciaArray = etiquetas.map(() => params.referencia);
 
         const ctx = document.getElementById("myChart").getContext("2d");
 
-        // Función para crear un degradado dinámico en las barras
-        function createGradient(ctx, arriba, abajo) {
+        // Función para crear un degradado simulando volumen en las barras
+        function createGradient(ctx, colorBase) {
             const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-            gradient.addColorStop(0, arriba);
-            gradient.addColorStop(1, abajo);
+            gradient.addColorStop(0, "#FFFFFF"); // Brillo en la parte superior
+            gradient.addColorStop(0.2, colorBase); // Color base
+            gradient.addColorStop(1, "#666666"); // Sombra en la parte inferior
             return gradient;
         }
 
-        // Asignar colores basados en el criterio
+        // Determinar colores según criterio
         const barColors = params.datos.map(valor => {
             if (params.criterio === "AUM") {
-                return valor >= params.referencia ? createGradient(ctx, "#00c853", "#66ffa6") : createGradient(ctx, "#d50000", "#ff8a80");
+                return createGradient(ctx, valor >= params.referencia ? "#85CD7B" : "#F19595");
             } else {
-                return valor >= params.referencia ? createGradient(ctx, "#d50000", "#ff8a80") : createGradient(ctx, "#00c853", "#66ffa6");
+                return createGradient(ctx, valor >= params.referencia ? "#F19595" : "#85CD7B");
             }
         });
 
-        // Crear la gráfica
         new Chart(ctx, {
             type: "bar",
             data: {
@@ -77,8 +71,8 @@
                         label: "Valores de Seguimiento",
                         data: params.datos,
                         backgroundColor: barColors,
-                        borderColor: "#ccc",
-                        borderWidth: 1
+                        borderColor: "#444", // Borde oscuro para dar efecto 3D
+                        borderWidth: 2
                     },
                     {
                         label: "Valor de Referencia",
@@ -94,22 +88,6 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        labels: {
-                            font: {
-                                size: 14
-                            }
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function (context) {
-                                return `${context.dataset.label}: ${context.raw.toFixed(2)}`;
-                            }
-                        }
-                    }
-                },
                 scales: {
                     y: {
                         beginAtZero: false,
