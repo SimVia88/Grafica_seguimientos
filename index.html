@@ -47,7 +47,7 @@
 
     const urlParams = new URLSearchParams(window.location.search);
 
-    const referencia = convertir(urlParams.get("referencia"));
+    const referencia = 12.25;
     const seguimiento1 = convertir(urlParams.get("seguimiento1"));
     const seguimiento2 = convertir(urlParams.get("seguimiento2"));
     const criterio = urlParams.get("criterio") || "AUM";
@@ -69,18 +69,6 @@
         return valor <= referencia ? "#5FD475" : "#F19595";
       }
     });
-	
-	
-	const url = new URLSearchParams(window.location.search);
-
-	document.body.innerHTML = `
-	  <div style="font-size:30px; padding:30px; background:white;">
-		referencia recibida: ${url.get("referencia")}<br>
-		seguimiento1 recibido: ${url.get("seguimiento1")}<br>
-		seguimiento2 recibido: ${url.get("seguimiento2")}<br>
-		criterio recibido: ${url.get("criterio")}
-	  </div>
-	`;
 	
     const maxValor = Math.max(...datos, referencia, 1);
 
