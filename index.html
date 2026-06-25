@@ -69,7 +69,19 @@
         return valor <= referencia ? "#5FD475" : "#F19595";
       }
     });
+	
+	
+	const url = new URLSearchParams(window.location.search);
 
+	document.body.innerHTML = `
+	  <div style="font-size:30px; padding:30px; background:white;">
+		referencia recibida: ${url.get("referencia")}<br>
+		seguimiento1 recibido: ${url.get("seguimiento1")}<br>
+		seguimiento2 recibido: ${url.get("seguimiento2")}<br>
+		criterio recibido: ${url.get("criterio")}
+	  </div>
+	`;
+	
     const maxValor = Math.max(...datos, referencia, 1);
 
     new Chart(ctx, {
