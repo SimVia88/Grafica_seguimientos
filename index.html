@@ -1,123 +1,184 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gráfica de Seguimiento</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: transparent;
-            overflow: hidden;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gráfica de Seguimiento</title>
 
-        canvas {
-            width: 90vw;
-            height: 80vh;
-        }
-    </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: transparent;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+
+    .chart-card {
+      width: 92vw;
+      height: 82vh;
+      background: #E1E8ED;
+      border-radius: 14px;
+      padding: 24px;
+      box-sizing: border-box;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    }
+
+    canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
+  </style>
 </head>
+
 <body>
+  <div class="chart-card">
     <canvas id="myChart"></canvas>
+  </div>
 
-    <script>
-        // Función para obtener los valores desde la URL
-        function getQueryParams() {
-            const params = new URLSearchParams(window.location.search);
-            return {
-                referencia: parseFloat(params.get("referencia")) || 0,
-                criterio: params.get("criterio") || "AUM",
-                datos: [
-                    parseFloat(params.get("seguimiento1")) || 0,
-                    parseFloat(params.get("seguimiento2")) || 0,
-                ]
-            };
-        }
+  <script>
+    function convertir(valor) {
+      const num = parseFloat((valor || "0").toString().replace(",", "."));
+      return isNaN(num) ? 0 : num / 100;
+    }
 
-        // Obtener los valores desde la URL
-        const params = getQueryParams();
-        console.log("📊 Datos obtenidos de la URL:", params.datos);
-        console.log("📌 Valor de referencia:", params.referencia);
-        console.log("📌 Criterio:", params.criterio);
+    function getQueryParams() {
+      const params = new URLSearchParams(window.location.search);
 
-        const etiquetas = ["Seguimiento 1er Semestre", "Seguimiento 2do Semestre"];
-        const referenciaArray = etiquetas.map(() => params.referencia);
+      return {
+        referencia: convertir(params.get("referencia")),
+        criterio: params.get("criterio") || "AUM",
+        datos: [
+          convertir(params.get("seguimiento1")),
+          convertir(params.get("seguimiento2"))
+        ]
+      };
+    }
 
-        const ctx = document.getElementById("myChart").getContext("2d");
+    const params = getQueryParams();
 
-        // Función para crear un degradado dinámico en las barras
-        function createGradient(ctx, arriba, abajo) {
-            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-            gradient.addColorStop(0, arriba);
-            gradient.addColorStop(1, abajo);
-            return gradient;
-        }
+    const etiquetas = [
+      "Seguimiento 1er semestre",
+      "Seguimiento 2º semestre"
+    ];
 
-        // Asignar colores basados en el criterio
-        const barColors = params.datos.map(valor => {
-            if (params.criterio === "AUM") {
-                return valor >= params.referencia ? createGradient(ctx, "#00c853", "#66ffa6") : createGradient(ctx, "#d50000", "#ff8a80");
-            } else {
-                return valor >= params.referencia ? createGradient(ctx, "#d50000", "#ff8a80") : createGradient(ctx, "#00c853", "#66ffa6");
+    const referenciaArray = etiquetas.map(() => params.referencia);
+
+    const ctx = document.getElementById("myChart").getContext("2d");
+
+    function createGradient(ctx, arriba, abajo) {
+      const gradient = ctx.createLinearGradient(0, 0, 0, 500);
+      gradient.addColorStop(0, arriba);
+      gradient.addColorStop(1, abajo);
+      return gradient;
+    }
+
+    const barColors = params.datos.map(valor => {
+      if (params.criterio === "AUM") {
+        return valor >= params.referencia
+          ? createGradient(ctx, "#00c853", "#66ffa6")
+          : createGradient(ctx, "#d50000", "#ff8a80");
+      } else {
+        return valor >= params.referencia
+          ? createGradient(ctx, "#d50000", "#ff8a80")
+          : createGradient(ctx, "#00c853", "#66ffa6");
+      }
+    });
+
+    const maxValor = Math.max(...params.datos, params.referencia);
+    const minValor = Math.min(...params.datos, params.referencia);
+
+    new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: etiquetas,
+        datasets: [
+          {
+            label: "Valores de seguimiento",
+            data: params.datos,
+            backgroundColor: barColors,
+            borderColor: "#ffffff",
+            borderWidth: 1,
+            borderRadius: 10,
+            barThickness: 120
+          },
+          {
+            label: "Valor de referencia",
+            data: referenciaArray,
+            type: "line",
+            borderColor: "#1e40ff",
+            backgroundColor: "#1e40ff",
+            borderWidth: 3,
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            tension: 0.2,
+            fill: false
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+
+        plugins: {
+          legend: {
+            position: "top",
+            labels: {
+              font: {
+                size: 14,
+                weight: "bold"
+              },
+              color: "#333"
             }
-        });
+          },
 
-        // Crear la gráfica
-        new Chart(ctx, {
-            type: "bar",
-            data: {
-                labels: etiquetas,
-                datasets: [
-                    {
-                        label: "Valores de Seguimiento",
-                        data: params.datos,
-                        backgroundColor: barColors,
-                        borderColor: "#ccc",
-                        borderWidth: 1
-                    },
-                    {
-                        label: "Valor de Referencia",
-                        data: referenciaArray,
-                        type: "line",
-                        borderColor: "blue",
-                        borderWidth: 2,
-                        pointRadius: 0,
-                        fill: false
-                    }
-                ]
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return `${context.dataset.label}: ${context.raw.toFixed(2)}`;
+              }
+            }
+          }
+        },
+
+        scales: {
+          x: {
+            ticks: {
+              color: "#333",
+              font: {
+                size: 13,
+                weight: "bold"
+              }
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        labels: {
-                            font: {
-                                size: 14
-                            }
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function (context) {
-                                return `${context.dataset.label}: ${context.raw.toFixed(2)}`;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: false,
-                        suggestedMin: Math.min(...params.datos, params.referencia) * 0.8
-                    }
-                }
+            grid: {
+              display: false
             }
-        });
-    </script>
+          },
+
+          y: {
+            beginAtZero: true,
+            suggestedMax: maxValor * 1.25,
+            ticks: {
+              color: "#333",
+              font: {
+                size: 12
+              },
+              callback: function(value) {
+                return value.toFixed(2);
+              }
+            },
+            grid: {
+              color: "rgba(0, 0, 0, 0.12)"
+            }
+          }
+        }
+      }
+    });
+  </script>
 </body>
 </html>
