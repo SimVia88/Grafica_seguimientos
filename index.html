@@ -47,7 +47,7 @@
 
     const urlParams = new URLSearchParams(window.location.search);
 
-    const referencia = 12.25;
+    const referencia = convertir(urlParams.get("referencia"));
     const seguimiento1 = convertir(urlParams.get("seguimiento1"));
     const seguimiento2 = convertir(urlParams.get("seguimiento2"));
     const criterio = urlParams.get("criterio") || "AUM";
